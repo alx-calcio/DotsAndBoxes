@@ -1,33 +1,79 @@
-# Example file showing a basic pygame "game loop"
-import pygame
-from main import playboard, size
-
-pygame.init()
-screen = pygame.display.set_mode((800, 800))
-clock = pygame.time.Clock()
-running = True
-screen.fill("white")
-
-while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+class Square():
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.side_right = ""
+        self.side_left = ""
+        self.side_top = ""
+        self.side_bottom = ""
     
-    y = 100
-    for line in playboard:
-        x = 100
+SIZE = 4
+PLAYBOARD = []
+
+def init_playboard():
+    global PLAYBOARD
+    for y in range(SIZE):
+        line = []
+        for x in range(SIZE):
+            line.append(Square(x,y))
+        PLAYBOARD.append(line)
+
+def show(PLAYBOARD):
+    for line in PLAYBOARD:
+        sentence = ""
         for square in line:
-            pygame.draw.circle(screen, "grey", (x,y), 120 / size)
-            x += 600 / (size-1)
-        y += 600 / (size-1)
+            if square.side_top:
+                sentence += "+ - "
+            else:
+                sentence += "+   "
+        print(f"{sentence}+")
+        sentence=""
+        for square in line:
+            if square.side_left:
+                sentence += "|   "
+            else:
+                sentence += "    "
+        if line[-1].side_right:
+            sentence += "|"
+        print(sentence)
+    for square in PLAYBOARD[-1]:
+        sentence = ""
+        for square in line:
+            if square.side_bottom:
+                sentence += "+ - "
+            else:
+                sentence += "+   "
+    print(f"{sentence}+")
 
-    # RENDER YOUR GAME HERE
+init_playboard()
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
+def play(player,x,y,side):
+    global PLAYBOARD
+    if side == "R":
+        try:
+            PLAYBOARD[y][x].side_right = player
+            PLAYBOARD[y][x+1].side_left = player
+        except:
+            pass
+    elif side == "L":
+        try:
+            PLAYBOARD[y][x].side_left = player
+            PLAYBOARD[y][x-1].side_right = player
+        except:
+            pass
+    elif side == "T":
+        try:
+            PLAYBOARD[y][x].side_top = player
+            PLAYBOARD[y-1][x].side_bottom = player
+        except:
+            pass
+    else:
+        try:
+            PLAYBOARD[y][x].side_bottom = player
+            PLAYBOARD[y+1][x].side_top = player
+        except:
+            pass
+    
+    show(PLAYBOARD)
 
-    clock.tick(60)  # limits FPS to 60
-
-pygame.quit()
+play("A",0,0,"T")
